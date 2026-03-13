@@ -60,38 +60,41 @@ GDN-SLAM/
 ├── build_ros.sh
 ├── evaluate_ate.py
 ├── evaluate_rpe.py
+```
 
-Important:
-Please ensure that the vocabulary directory name is consistent with the build scripts.
-If build.sh uses Vocabulary, the folder should also be named Vocabulary.
+> **Important:**  
+> Please ensure that the vocabulary directory name is consistent with the build scripts.  
+> If `build.sh` uses `Vocabulary`, the folder should also be named `Vocabulary`.
 
-Environment Requirements
-Basic Dependencies
+---
 
-Operating System: Ubuntu 18.04 / 20.04
+## Environment Requirements
 
-Compiler: GCC 5.4+ (with C++11/14 support)
+### Basic Dependencies
 
-ROS: Melodic (Ubuntu 18.04) / Noetic (Ubuntu 20.04, recommended)
+- **Operating System:** Ubuntu 18.04 / 20.04
+- **Compiler:** GCC 5.4+ (with C++11/14 support)
+- **ROS:** Melodic (Ubuntu 18.04) / Noetic (Ubuntu 20.04, recommended)
 
-Core Libraries
+### Core Libraries
 
-Pangolin ≥ 0.6
+- **Pangolin** ≥ 0.6
+- **OpenCV** ≥ 3.4 (4.5+ recommended)
+- **Eigen3** ≥ 3.3.7
+- **g2o** (modified version included in `Thirdparty`)
+- **DBoW2** (included in `Thirdparty`)
 
-OpenCV ≥ 3.4 (4.5+ recommended)
+### Optional Dependencies
 
-Eigen3 ≥ 3.3.7
+- **PyTorch** ≥ 1.10 (optional, if semantic-related extensions are enabled)
 
-g2o (modified version included in Thirdparty)
+---
 
-DBoW2 (included in Thirdparty)
+## Installation
 
-Optional Dependencies
+### 1. Install Basic Dependencies
 
-PyTorch ≥ 1.10 (optional, if semantic-related extensions are enabled)
-
-Installation
-1. Install Basic Dependencies
+```bash
 sudo apt-get update && sudo apt-get install -y \
     build-essential cmake git libgtk2.0-dev \
     libboost-all-dev libssl-dev libusb-1.0-0-dev \
@@ -99,14 +102,22 @@ sudo apt-get update && sudo apt-get install -y \
     libgflags-dev libatlas-base-dev libeigen3-dev \
     libsuitesparse-dev ros-${ROS_DISTRO}-cv-bridge \
     ros-${ROS_DISTRO}-image-transport ros-${ROS_DISTRO}-tf
-2. Install Pangolin
+```
+
+### 2. Install Pangolin
+
+```bash
 git clone https://github.com/stevenlovegrove/Pangolin.git
 cd Pangolin
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j8
 sudo make install
-3. Install OpenCV
+```
+
+### 3. Install OpenCV
+
+```bash
 git clone https://github.com/opencv/opencv.git
 git clone https://github.com/opencv/opencv_contrib.git
 
@@ -117,129 +128,156 @@ cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules \
       -DCMAKE_INSTALL_PREFIX=/usr/local ..
 make -j8
 sudo make install
-4. Clone This Repository
+```
+
+### 4. Clone This Repository
+
+```bash
 mkdir -p ~/gdn_slam_ws/src
 cd ~/gdn_slam_ws/src
 git clone https://github.com/JunjieHuang-2001/GDN-SLAM.git
 cd GDN-SLAM
-5. Prepare the Vocabulary File
+```
+
+### 5. Prepare the Vocabulary File
 
 Please ensure that the ORB vocabulary archive is available under:
 
+```text
 Vocabulary/ORBvoc.txt.tar.gz
+```
 
-Then extract it before running the system. If needed, build.sh will also extract the vocabulary archive automatically.
+Then extract it before running the system. If needed, `build.sh` will also extract the vocabulary archive automatically.
 
-6. Build GDN-SLAM
+### 6. Build GDN-SLAM
+
+```bash
 chmod +x build.sh
 ./build.sh
+```
 
 If ROS support is needed:
 
+```bash
 chmod +x build_ros.sh
 ./build_ros.sh
 
 cd ~/gdn_slam_ws
 catkin_make -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
-Dataset Preparation
+```
+
+---
+
+## Dataset Preparation
 
 The project can be evaluated on public datasets such as:
 
-TUM RGB-D Dataset
+- **TUM RGB-D Dataset**
+- **Bonn RGB-D Dynamic Dataset**
 
-Bonn RGB-D Dynamic Dataset
-
-TUM RGB-D Dataset
+### TUM RGB-D Dataset
 
 Download link:
 
+```text
 https://vision.in.tum.de/data/datasets/rgbd-dataset
+```
 
 Example:
 
+```bash
 mkdir -p ./datasets
 wget https://vision.in.tum.de/rgbd/dataset/freiburg3/rgbd_dataset_freiburg3_walking_xyz.tgz
 tar -xvf rgbd_dataset_freiburg3_walking_xyz.tgz -C ./datasets/
+```
 
-If the association script is provided under Examples/RGB-D/associate.py, you can generate the association file using:
+If the association script is provided under `Examples/RGB-D/associate.py`, you can generate the association file using:
 
+```bash
 python Examples/RGB-D/associate.py \
     ./datasets/rgbd_dataset_freiburg3_walking_xyz/rgb.txt \
     ./datasets/rgbd_dataset_freiburg3_walking_xyz/depth.txt \
     ./Examples/RGB-D/associations/fr3_walking_xyz.txt
+```
 
 Please adjust the path according to the actual repository contents.
 
-Running GDN-SLAM
-RGB-D Example
+---
+
+## Running GDN-SLAM
+
+### RGB-D Example
 
 After successful compilation, an RGB-D executable is generated in the corresponding example directory.
 
 Example command:
 
+```bash
 ./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/tum_dynamic.yaml \
 ./datasets/rgbd_dataset_freiburg3_walking_xyz/ \
 ./Examples/RGB-D/associations/fr3_walking_xyz.txt
+```
 
 Please make sure that:
 
-Vocabulary/ORBvoc.txt has been extracted from ORBvoc.txt.tar.gz
+- `Vocabulary/ORBvoc.txt` has been extracted from `ORBvoc.txt.tar.gz`
+- `Examples/RGB-D/tum_dynamic.yaml` exists in your repository
+- the dataset path is correct
 
-Examples/RGB-D/tum_dynamic.yaml exists in your repository
-
-the dataset path is correct
-
-Other Supported Modes
+### Other Supported Modes
 
 Depending on the provided example source files, the repository may also support:
 
-Monocular mode
+- Monocular mode
+- Stereo mode
+- RGB-D mode
 
-Stereo mode
+Please refer to the `Examples/` directory for the available executables and dataset-specific usage.
 
-RGB-D mode
+---
 
-Please refer to the Examples/ directory for the available executables and dataset-specific usage.
-
-Trajectory Evaluation
+## Trajectory Evaluation
 
 This repository includes trajectory evaluation scripts:
 
-evaluate_ate.py
-
-evaluate_rpe.py
+- `evaluate_ate.py`
+- `evaluate_rpe.py`
 
 These scripts are adapted from widely used RGB-D trajectory evaluation tools.
 
-Important Note
+### Important Note
 
-If the scripts are written in Python 2 style, please run them with Python 2.7.
+If the scripts are written in Python 2 style, please run them with **Python 2.7**.
 
-Example
+### Example
+
+```bash
 python2 evaluate_ate.py groundtruth.txt estimated.txt
 python2 evaluate_rpe.py groundtruth.txt estimated.txt
+```
 
-If you have already migrated them to Python 3, replace python2 with python3.
+If you have already migrated them to Python 3, replace `python2` with `python3`.
 
-Reproducibility Notes
+---
+
+## Reproducibility Notes
 
 To improve reproducibility, please ensure the following:
 
-the vocabulary file is placed in the correct directory
+- the vocabulary file is placed in the correct directory
+- the directory name `Vocabulary` matches the build script
+- the OpenCV, Pangolin, Eigen, and ROS environments are correctly configured
+- the dataset paths and YAML configuration files are consistent with the README commands
+- all required files under `Examples/`, `Thirdparty/`, and `Vocabulary/` are present
 
-the directory name Vocabulary matches the build script
+---
 
-the OpenCV, Pangolin, Eigen, and ROS environments are correctly configured
-
-the dataset paths and YAML configuration files are consistent with the README commands
-
-all required files under Examples/, Thirdparty/, and Vocabulary/ are present
-
-Citation
+## Citation
 
 If you find this repository useful, please cite the related manuscript:
 
+```bibtex
 @article{huang2026gdnslam,
   title={Enhancing Dynamic SLAM Performance through Multi-Feature Geometric Consistency and NeRF-Based Optimization},
   author={Huang, Junjie and Liu, Huilin and Yu, Lunqi and Su, Chang and Ma, Wanqi},
@@ -247,36 +285,38 @@ If you find this repository useful, please cite the related manuscript:
   year={2026},
   note={Manuscript submitted / under review}
 }
-Acknowledgements
+```
+
+---
+
+## Acknowledgements
 
 This project is built upon ORB-SLAM2 and also benefits from several open-source libraries and tools, including:
 
-ORB-SLAM2
-
-Pangolin
-
-OpenCV
-
-Eigen3
-
-DBoW2
-
-g2o
+- ORB-SLAM2
+- Pangolin
+- OpenCV
+- Eigen3
+- DBoW2
+- g2o
 
 We sincerely thank the original authors for their open-source contributions.
 
-License
+---
+
+## License
 
 Please refer to the following files for license information:
 
-LICENSE.txt
-
-License-gpl.txt
+- `LICENSE.txt`
+- `License-gpl.txt`
 
 For third-party code and dependency licenses, please also refer to:
 
-Dependencies.md
+- `Dependencies.md`
 
-Contact
+---
+
+## Contact
 
 For questions regarding the code or manuscript, please contact the repository maintainer via GitHub issues.
